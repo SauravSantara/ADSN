@@ -1,0 +1,8 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl cardboard
+Kd 0.854902 0.572549 0.4235294
+
+newmtl tape
+Kd 0.9960784 0.8431372 0.7568628
+
