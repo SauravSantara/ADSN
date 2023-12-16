@@ -110,11 +110,12 @@ namespace ADSN
 
             /// Adding random no. of straight paths
             int currentPathLenght = Random.Range(minimumStraightTiles, maximumStraightTiles);
-            /*for (int i = 0; i < currentPathLenght; ++i)
+            for (int i = 0; i < currentPathLenght; ++i)
             {
                 /// Spawning obstacles except on the first tile
-                SpawnTile(startingTile.GetComponent<Tile>(), i == 0 ? false : true);
-            }*/
+                //SpawnTile(startingTile.GetComponent<Tile>(), i == 0 ? false : true);
+                SpawnTile(startingTile.GetComponent<Tile>());
+            }
 
             /// Spawn a turn tile
             SpawnTile(SelectRandomGameObjectFromList(turnTiles).GetComponent<Tile>());
