@@ -1,48 +1,41 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ADSN
 {
-
     public class SpawnGold : MonoBehaviour
     {
-        [SerializeField]
-        Rigidbody objectToThrow;
+        [SerializeField] Transform startPosition;
+        [SerializeField] Rigidbody objectToThrow;
+        [SerializeField] float force = 5f;
+        public int countOfGold = 0;
 
-        [SerializeField, Range(5.0f, 50.0f)]
-        float force = 5.0f;
-
-        [SerializeField]
-        Transform StartPosition;
-
-        // Start is called before the first frame update
         void Start()
         {
+            if (startPosition == null)
+                startPosition = GetComponent<Transform>();
 
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.gameObject.tag == "Potato")
-            {
-                Destroy(collision.gameObject);
-                ThrowGold();
-            }
+            GameEvents.current.OnSqrBtnHit += ThrowGold;
         }
 
         private void ThrowGold()
         {
-            force = UnityEngine.Random.Range(5.0f, 30.0f);
-            Rigidbody thrownObject = Instantiate(objectToThrow, StartPosition.position, Quaternion.identity);
+            force = UnityEngine.Random.Range(5f, 25f);
+            Rigidbody thrownObject = Instantiate(objectToThrow, startPosition.position, Quaternion.identity);
             thrownObject.AddForce(Vector3.back * force, ForceMode.Impulse);
+
+            countOfGold += 1;
+            GameEvents.current.GoldSpawnEvent(countOfGold);
+        }
+
+        /*public int CountOfGold()
+        {
+            countOfGold += 1;
+            return countOfGold;
+        }*/
+
+        private void OnDestroy()
+        {
+            GameEvents.current.OnSqrBtnHit -= ThrowGold;
         }
     }
 }

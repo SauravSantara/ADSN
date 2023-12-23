@@ -24,13 +24,52 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     ""name"": ""PlayerInputActions"",
     ""maps"": [
         {
-            ""name"": ""pActionMap"",
+            ""name"": ""Shoot"",
             ""id"": ""76acbe3a-fb8c-4fe7-ad68-2e861a575141"",
+            ""actions"": [
+                {
+                    ""name"": ""OnTriggerPull"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""52d3119d-9328-4ee5-ab31-590f2e5e8217"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""784a094b-41b9-4f2e-9ce6-9a191bd24044"",
+                    ""path"": ""<Touchscreen>/primaryTouch/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""pControlScheme"",
+                    ""action"": ""OnTriggerPull"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c77c5dd9-086b-4c29-ac03-57b6e6f67132"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OnTriggerPull"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""pActionMap"",
+            ""id"": ""5248b758-a2fb-4dfb-9f52-76530d76bf60"",
             ""actions"": [
                 {
                     ""name"": ""MouseLook"",
                     ""type"": ""Value"",
-                    ""id"": ""bcecdc6d-85a9-496c-b9be-f41ab2246e57"",
+                    ""id"": ""74c682f8-aec5-4536-901d-a27903434584"",
                     ""expectedControlType"": ""Delta"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -39,7 +78,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""Fire"",
                     ""type"": ""Button"",
-                    ""id"": ""6da358a4-eb10-4a84-8e1c-d1be3ab7e0c3"",
+                    ""id"": ""5504668b-e73f-4d0d-9005-60d2f572fce6"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -49,18 +88,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""a49bd39f-b5b1-404f-a47f-c547d4852f46"",
+                    ""id"": ""8664c069-74a0-4b73-b8c6-e6267d908ddd"",
                     ""path"": ""<Pointer>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""pControlScheme"",
+                    ""groups"": """",
                     ""action"": ""MouseLook"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e3bc6539-3d57-4a0b-a2e0-537c96c20566"",
+                    ""id"": ""ce635cba-1999-4e14-928b-7d3c48d032d8"",
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -80,6 +119,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         }
     ]
 }");
+        // Shoot
+        m_Shoot = asset.FindActionMap("Shoot", throwIfNotFound: true);
+        m_Shoot_OnTriggerPull = m_Shoot.FindAction("OnTriggerPull", throwIfNotFound: true);
         // pActionMap
         m_pActionMap = asset.FindActionMap("pActionMap", throwIfNotFound: true);
         m_pActionMap_MouseLook = m_pActionMap.FindAction("MouseLook", throwIfNotFound: true);
@@ -142,6 +184,52 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
+    // Shoot
+    private readonly InputActionMap m_Shoot;
+    private List<IShootActions> m_ShootActionsCallbackInterfaces = new List<IShootActions>();
+    private readonly InputAction m_Shoot_OnTriggerPull;
+    public struct ShootActions
+    {
+        private @PlayerInputActions m_Wrapper;
+        public ShootActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @OnTriggerPull => m_Wrapper.m_Shoot_OnTriggerPull;
+        public InputActionMap Get() { return m_Wrapper.m_Shoot; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ShootActions set) { return set.Get(); }
+        public void AddCallbacks(IShootActions instance)
+        {
+            if (instance == null || m_Wrapper.m_ShootActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_ShootActionsCallbackInterfaces.Add(instance);
+            @OnTriggerPull.started += instance.OnOnTriggerPull;
+            @OnTriggerPull.performed += instance.OnOnTriggerPull;
+            @OnTriggerPull.canceled += instance.OnOnTriggerPull;
+        }
+
+        private void UnregisterCallbacks(IShootActions instance)
+        {
+            @OnTriggerPull.started -= instance.OnOnTriggerPull;
+            @OnTriggerPull.performed -= instance.OnOnTriggerPull;
+            @OnTriggerPull.canceled -= instance.OnOnTriggerPull;
+        }
+
+        public void RemoveCallbacks(IShootActions instance)
+        {
+            if (m_Wrapper.m_ShootActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IShootActions instance)
+        {
+            foreach (var item in m_Wrapper.m_ShootActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_ShootActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public ShootActions @Shoot => new ShootActions(this);
+
     // pActionMap
     private readonly InputActionMap m_pActionMap;
     private List<IPActionMapActions> m_PActionMapActionsCallbackInterfaces = new List<IPActionMapActions>();
@@ -203,6 +291,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             if (m_pControlSchemeSchemeIndex == -1) m_pControlSchemeSchemeIndex = asset.FindControlSchemeIndex("pControlScheme");
             return asset.controlSchemes[m_pControlSchemeSchemeIndex];
         }
+    }
+    public interface IShootActions
+    {
+        void OnOnTriggerPull(InputAction.CallbackContext context);
     }
     public interface IPActionMapActions
     {
